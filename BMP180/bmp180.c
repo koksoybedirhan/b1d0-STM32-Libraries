@@ -2,7 +2,7 @@
  * bmp180.c
  *
  *  Created on: Sep 12, 2022
- *      Author: Lenovo
+ *      Author: b1d0
  */
 
 #include "bmp180.h"

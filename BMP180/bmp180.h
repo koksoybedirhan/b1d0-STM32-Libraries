@@ -13,5 +13,4 @@
 
 int BMP180_Test(void);
 
-
 #endif /* INC_BMP180_H_ */

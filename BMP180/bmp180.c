@@ -161,8 +161,16 @@ float BMP180_Calc_Press (int oss) //Calculating pressure with information from d
 	X3 = ((X1+X2)+2)/pow(2,2);
 	B4 = AC4*(unsigned long)(X3+32768)/(pow(2,15));
 	B7 = ((unsigned long)UP-B3)*(50000>>oss);
-	if (B7<0x80000000) Press = (B7*2)/B4;
-	else Press = (B7/B4)*2;
+
+	if (B7<0x80000000)
+	{
+		Press = (B7*2)/B4;
+	}
+	else
+	{
+		Press = (B7/B4)*2;
+	}
+
 	X1 = (Press/(pow(2,8)))*(Press/(pow(2,8)));
 	X1 = (X1*3038)/(pow(2,16));
 	X2 = (-7357*Press)/(pow(2,16));
@@ -176,4 +184,3 @@ float BMP180_Calc_Alt (int oss)
 	BMP180_Calc_Press (oss);
 	return 44330*(1-(pow((Press/(float)atmPress), 0.19029495718)));
 }
-

@@ -12,7 +12,7 @@ extern I2C_HandleTypeDef hi2c1; //Calling I2C
 #define bmp180_i2c &hi2c1 //This define for changeable i2c
 #define BMP180_ADDRESS (0x77<<1) //For 7 bits are 0x77 and last bit is W/R bit, so we have to shift one more and it has to be 0xEE
 
-//Register Defines
+//Register Defines (Data sheet page 15).
 //******************************
 //bmp180_get_cal_param
 short AC1 = 0;

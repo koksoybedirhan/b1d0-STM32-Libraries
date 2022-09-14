@@ -6,7 +6,7 @@
  */
 
 //Defines
-static const double R = 40; // noise coavirance (normally 10)
+static const double R = 40; // noise coavirance
 static const double H = 1.00; //measurment map scalar
 static double Q = 10; //initial estimated covariance
 static double P = 0; //initial error covariance (it must be 0)

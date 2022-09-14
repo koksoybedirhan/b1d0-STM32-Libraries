@@ -184,3 +184,54 @@ float BMP180_Calc_Alt (int oss)
 	BMP180_Calc_Press (oss);
 	return 44330*(1-(pow((Press/(float)atmPress), 0.19029495718)));
 }
+
+double BMP180_Kalman_Temp (double Temp_U)
+{
+	Temp_U = BMP180_Calc_Temp();
+	static const double Temp_R = 40; // noise coavirance (normally 10)
+	static const double Temp_H = 1.00; //measurment map scalar
+	static double Temp_Q = 10; //initial estimated covariance
+	static double Temp_P = 0; //initial error covariance (it must be 0)
+ 	static double Temp_U_hat = 25; //initial estimated state
+	static double Temp_K = 0; //initial kalman gain
+
+	Temp_K = Temp_P * Temp_H / (Temp_H * Temp_P * Temp_H + Temp_R);
+	Temp_U_hat = Temp_U_hat + Temp_K * (Temp_U - Temp_H * Temp_U_hat);
+	Temp_P = (1 - Temp_K * Temp_H) * Temp_P + Temp_Q;
+
+	return Temp_U_hat;
+}
+
+double BMP180_Kalman_Press (double Press_U)
+{
+	Press_U = BMP180_Calc_Press(oss);
+	static const double Press_R = 40; // noise coavirance (normally 10)
+	static const double Press_H = 1.00; //measurment map scalar
+	static double Press_Q = 10; //initial estimated covariance
+	static double Press_P = 0; //initial error covariance (it must be 0)
+ 	static double Press_U_hat = 101325; //initial estimated state
+	static double Press_K = 0; //initial kalman gain
+
+	Press_K = Press_P * Press_H / (Press_H * Press_P * Press_H + Press_R);
+	Press_U_hat = Press_U_hat + Press_K * (Press_U - Press_H * Press_U_hat);
+	Press_P = (1 - Press_K * Press_H) * Press_P + Press_Q;
+
+	return Press_U_hat;
+}
+
+double BMP180_Kalman_Alt (double Alt_U)
+{
+	Alt_U = BMP180_Calc_Alt(oss);
+	static const double Alt_R = 40; // noise coavirance (normally 10)
+	static const double Alt_H = 1.00; //measurment map scalar
+	static double Alt_Q = 10; //initial estimated covariance
+	static double Alt_P = 0; //initial error covariance (it must be 0)
+ 	static double Alt_U_hat = 50; //initial estimated state
+	static double Alt_K = 0; //initial kalman gain
+
+	Alt_K = Alt_P * Alt_H / (Alt_H * Alt_P * Alt_H + Alt_R);
+	Alt_U_hat = Alt_U_hat + Alt_K * (Alt_U - Alt_H * Alt_U_hat);
+	Alt_P = (1 - Alt_K * Alt_H) * Alt_P + Alt_Q;
+
+	return Alt_U_hat;
+}

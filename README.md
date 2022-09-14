@@ -13,4 +13,4 @@ Sources:
 https://controllerstech.com
 https://github.com/ctasdemir
 https://www.udemy.com/course/stm32cubeide-ile-gomulu-yazlim-tasarim/#instructor-1
-https://www.youtube.com/watch?v=ruB917YmtgE&t=723s
+https://www.vinayakd.com

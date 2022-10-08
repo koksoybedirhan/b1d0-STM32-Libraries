@@ -1,145 +1,209 @@
 /*
- * mpu9250.c
+ * mpu6050.c
  *
- *  Created on: Sep 14, 2022
+ *  Created on: Oct 8, 2022
  *      Author: b1d0
  */
 
-#include "mpu9250.h"
+#include "mpu6050.h"
 
 extern I2C_HandleTypeDef hi2c1;
-#define MPU9250_I2C &hi2c1
-#define MPU9250_Check 0xEE
 
+//Register Definitions
+#define MPU6050_ADDR 0xD0
+#define SMPLRT_DIV_REG 0x19
+#define GYRO_CONFIG_REG 0x1B
+#define ACCEL_CONFIG_REG 0x1C
+#define ACCEL_XOUT_H_REG 0x3B
+#define TEMP_OUT_H_REG 0x41
+#define GYRO_XOUT_H_REG 0x43
+#define PWR_MGMT_1_REG 0x6B
+#define WHO_AM_I_REG 0x75
 
-//Register defines from Register Map (Page 7 to 9)
-#define SELF_TEST_X_GYRO 0x00
-#define SELF_TEST_Y_GYRO 0x01
-#define SELF_TEST_Z_GYRO 0x02
-#define SELF_TEST_X_ACCEL 0x0D
-#define SELF_TEST_Y_ACCEL 0x0E
-#define SELF_TEST_Z_ACCEL 0x0F
-#define XG_OFFSET_H 0x13
-#define XG_OFFSET_L 0x14
-#define YG_OFFSET_H 0x15
-#define YG_OFFSET_L 0x16
-#define ZG_OFFSET_H 0x17
-#define ZG_OFFSET_L 0x18
-#define SMPLRT_DIV 0x19
-#define CONFIG 0x1A
-#define GYRO_CONFIG 0x1B
-#define ACCEL_CONFIG 0x1C
-#define ACCEL_CONFIG2 0x1D
-#define LP_ACCEL_ODR 0x1E
-#define WOM_THR 0x1F
-#define FIFO_EN 0x23
-#define I2C_MST_CTRL 0x24
-#define I2C_SLV0_ADDR 0x25
-#define I2C_SLV0_REG 0x26
-#define I2C_SLV0_CTRL 0x27
-#define I2C_SLV1_ADDR 0x28
-#define I2C_SLV1_REG 0x29
-#define I2C_SLV1_CTRL 0x2A
-#define I2C_SLV2_ADDR 0x2B
-#define I2C_SLV2_REG 0x2C
-#define I2C_SLV2_CTRL 0x2D
-#define I2C_SLV3_ADDR 0x2E
-#define I2C_SLV3_REG 0x2F
-#define I2C_SLV3_CTRL 0x30
-#define I2C_SLV4_ADDR 0x31
-#define I2C_SLV4_REG 0x32
-#define I2C_SLV4_DO 0x33
-#define I2C_SLV4_CTRL 0x34
-#define I2C_SLV4_DI 0x35
-#define I2C_MST_STATUS 0x36
-#define INT_PIN_CFG 0x37
-#define INT_ENABLE 0x38
-#define INT_STATUS 0x3A
-#define ACCEL_XOUT_H 0x3B
-#define ACCEL_XOUT_L 0x3C
-#define ACCEL_YOUT_H 0x3D
-#define ACCEL_YOUT_L 0x3E
-#define ACCEL_ZOUT_H 0x3F
-#define ACCEL_ZOUT_L 0x40
-#define TEMP_OUT_H 0x41
-#define TEMP_OUT_L 0x42
-#define GYRO_XOUT_H 0x43
-#define GYRO_XOUT_L 0x44
-#define GYRO_YOUT_H 0x45
-#define GYRO_YOUT_L 0x46
-#define GYRO_ZOUT_H 0x47
-#define GYRO_ZOUT_L 0x48
-#define EXT_SENS_DATA_00 0x49
-#define EXT_SENS_DATA_01 0x4A
-#define EXT_SENS_DATA_02 0x4B
-#define EXT_SENS_DATA_03 0x4C
-#define EXT_SENS_DATA_04 0x4D
-#define EXT_SENS_DATA_05 0x4E
-#define EXT_SENS_DATA_06 0x4F
-#define EXT_SENS_DATA_07 0x50
-#define EXT_SENS_DATA_08 0x51
-#define EXT_SENS_DATA_09 0x52
-#define EXT_SENS_DATA_10 0x53
-#define EXT_SENS_DATA_11 0x54
-#define EXT_SENS_DATA_12 0x55
-#define EXT_SENS_DATA_13 0x56
-#define EXT_SENS_DATA_14 0x57
-#define EXT_SENS_DATA_15 0x58
-#define EXT_SENS_DATA_16 0x59
-#define EXT_SENS_DATA_17 0x5A
-#define EXT_SENS_DATA_18 0x5B
-#define EXT_SENS_DATA_19 0x5C
-#define EXT_SENS_DATA_20 0x5D
-#define EXT_SENS_DATA_21 0x5E
-#define EXT_SENS_DATA_22 0x5F
-#define EXT_SENS_DATA_23 0x60
-#define I2C_SLV0_DO 0x63
-#define I2C_SLV1_DO 0x64
-#define I2C_SLV2_DO 0x65
-#define I2C_SLV3_DO 0x66
-#define I2C_MST_DELAY_CTRL 0x67
-#define SIGNAL_PATH_RESET 0x68
-#define MOT_DETECT_CTRL 0x69
-#define USER_CTRL 0x6A
-#define PWR_MGMT_1 0x6B
-#define PWR_MGMT_2 0x6C
-#define FIFO_COUNTH 0x72
-#define FIFO_COUNTL 0x73
-#define FIFO_R_W 0x74
-#define WHO_AM_I 0x75
-#define XA_OFFSET_H 0x77
-#define XA_OFFSET_L 0x78
-#define YA_OFFSET_H 0x7A
-#define YA_OFFSET_L 0x7B
-#define ZA_OFFSET_H 0x7D
-#define ZA_OFFSET_L 0x7E
+//Variables
+float Ax, Ay, Az, Gx, Gy, Gz, Accel_X, Accel_Y, Accel_Z, Gyro_X, Gyro_Y, Gyro_Z;
+int16_t Accel_X_RAW = 0;
+int16_t Accel_Y_RAW = 0;
+int16_t Accel_Z_RAW = 0;
+int16_t Gyro_X_RAW = 0;
+int16_t Gyro_Y_RAW = 0;
+int16_t Gyro_Z_RAW = 0;
 
+//Kalman Definitions
+static const double R = 40; // noise coavirance (normally 10)
+static const double H = 1.00; //measurment map scalar
+static double Q = 10; //initial estimated covariance
+static double P = 0; //initial error covariance (it must be 0)
+static double K = 0; //initial kalman gain
 
-void MPU9250_Test(void)
+void MPU6050_Init (void)
 {
-	HAL_StatusTypeDef status;
-	status = HAL_I2C_IsDeviceReady(MPU9250_I2C, MPU9250_Check, 1, 100);
+	uint8_t check;
+	uint8_t Data;
 
-	if(HAL_OK == status)
+	// check device ID WHO_AM_I
+
+	HAL_I2C_Mem_Read (&hi2c1, MPU6050_ADDR,WHO_AM_I_REG,1, &check, 1, 1000);
+
+	if (check == 104)  // 0x68 will be returned by the sensor if everything goes well
 	{
-		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, SET);
+		// power management register 0X6B we should write all 0's to wake the sensor up
+		Data = 0;
+		HAL_I2C_Mem_Write(&hi2c1, MPU6050_ADDR, PWR_MGMT_1_REG, 1,&Data, 1, 1000);
+
+		// Set DATA RATE of 1KHz by writing SMPLRT_DIV register
+		Data = 0x07;
+		HAL_I2C_Mem_Write(&hi2c1, MPU6050_ADDR, SMPLRT_DIV_REG, 1, &Data, 1, 1000);
+
+		// Set accelerometer configuration in ACCEL_CONFIG Register
+		// XA_ST=0,YA_ST=0,ZA_ST=0, FS_SEL=0 -> ± 2g
+		Data = 0x00;
+		HAL_I2C_Mem_Write(&hi2c1, MPU6050_ADDR, ACCEL_CONFIG_REG, 1, &Data, 1, 1000);
+
+		// Set Gyroscopic configuration in GYRO_CONFIG Register
+		// XG_ST=0,YG_ST=0,ZG_ST=0, FS_SEL=0 -> ± 250 °/s
+		Data = 0x00;
+		HAL_I2C_Mem_Write(&hi2c1, MPU6050_ADDR, GYRO_CONFIG_REG, 1, &Data, 1, 1000);
 	}
-	else
-	{
-		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, RESET);
-	}
-	return 0;
+
 }
 
-void MPU9250_Callibration(void)
+void MPU6050_Accel_Config(void)
 {
+	uint8_t Rec_Data[6];
+	HAL_I2C_Mem_Read (&hi2c1, MPU6050_ADDR, ACCEL_XOUT_H_REG, 1, Rec_Data, 6, 1000);
 
+	Accel_X_RAW = (int16_t)(Rec_Data[0] << 8 | Rec_Data [1]);
+	Accel_Y_RAW = (int16_t)(Rec_Data[2] << 8 | Rec_Data [3]);
+	Accel_Z_RAW = (int16_t)(Rec_Data[4] << 8 | Rec_Data [5]);
 }
 
-void MPU9250_Start(void)
+float MPU6050_Read_Accel_X(void)
 {
-
+	MPU6050_Accel_Config();
+	Ax = Accel_X_RAW/16384.0;
+	return Ax;
 }
 
+float MPU6050_Read_Accel_Y (void)
+{
+	MPU6050_Accel_Config();
+	Ay = Accel_Y_RAW/16384.0;
+	return Ay;
+}
 
+float MPU6050_Read_Accel_Z (void)
+{
+	MPU6050_Accel_Config();
+	Az = Accel_Z_RAW/16384.0;
+	return Az;
+}
 
+void MPU6050_Gyro_Config(void)
+{
+	uint8_t Rec_Data[6];
+	HAL_I2C_Mem_Read (&hi2c1, MPU6050_ADDR, GYRO_XOUT_H_REG, 1, Rec_Data, 6, 1000);
+
+	Gyro_X_RAW = (int16_t)(Rec_Data[0] << 8 | Rec_Data [1]);
+	Gyro_Y_RAW = (int16_t)(Rec_Data[2] << 8 | Rec_Data [3]);
+	Gyro_Z_RAW = (int16_t)(Rec_Data[4] << 8 | Rec_Data [5]);
+}
+
+float MPU6050_Read_Gyro_X (void)
+{
+	MPU6050_Gyro_Config();
+	Gx = Gyro_X_RAW/131.0;
+	return Gx;
+}
+
+float MPU6050_Read_Gyro_Y (void)
+{
+	MPU6050_Gyro_Config();
+	Gy = Gyro_Y_RAW/131.0;
+	return Gy;
+}
+
+float MPU6050_Read_Gyro_Z (void)
+{
+	MPU6050_Gyro_Config();
+	Gz = Gyro_Z_RAW/131.0;
+	return Gz;
+}
+
+double MPU6050_Kalman_Accel_X (double Accel_X_U)
+{
+	Accel_X_U = MPU6050_Read_Accel_X();
+
+	static double Accel_X_U_hat = 0; //initial estimated state
+
+	K = P * H / (H * P * H + R);
+	Accel_X_U_hat = Accel_X_U_hat + K * (Accel_X_U - H * Accel_X_U_hat);
+	P = (1 - K * H) * P + Q;
+
+	return Accel_X_U_hat;
+}
+
+double MPU6050_Kalman_Accel_Y (double Accel_Y_U)
+{
+	Accel_Y_U = MPU6050_Read_Accel_Y();
+
+	static double Accel_Y_U_hat = 0; //initial estimated state
+
+	K = P * H / (H * P * H + R);
+	Accel_Y_U_hat = Accel_Y_U_hat + K * (Accel_Y_U - H * Accel_Y_U_hat);
+	P = (1 - K * H) * P + Q;
+
+	return Accel_Y_U_hat;
+}
+
+double MPU6050_Kalman_Accel_Z (double Accel_Z_U)
+{
+	Accel_Z_U = MPU6050_Read_Accel_Z();
+
+	static double Accel_Z_U_hat = 0; //initial estimated state
+
+	K = P * H / (H * P * H + R);
+	Accel_Z_U_hat = Accel_Z_U_hat + K * (Accel_Z_U - H * Accel_Z_U_hat);
+	P = (1 - K * H) * P + Q;
+
+	return Accel_Z_U_hat;
+}
+
+double MPU6050_Kalman_Gyro_X (double Gyro_X_U)
+{
+	Gyro_X_U = MPU6050_Read_Accel_X();
+
+	static double Gyro_X_U_hat = 0; //initial estimated state
+
+	K = P * H / (H * P * H + R);
+	Gyro_X_U_hat = Gyro_X_U_hat + K * (Gyro_X_U - H * Gyro_X_U_hat);
+	P = (1 - K * H) * P + Q;
+
+	return Gyro_X_U_hat;
+}
+
+double MPU6050_Kalman_Gyro_Y (double Gyro_Y_U)
+{
+	Gyro_Y_U = MPU6050_Read_Accel_Y();
+
+	static double Gyro_Y_U_hat = 0; //initial estimated state
+
+	K = P * H / (H * P * H + R);
+	Gyro_Y_U_hat = Gyro_Y_U_hat + K * (Gyro_Y_U - H * Gyro_Y_U_hat);
+	P = (1 - K * H) * P + Q;
+
+	return Gyro_Y_U_hat;
+}
+
+double MPU6050_Kalman_Gyro_Z (double Gyro_Z_U)
+{
+	Gyro_Z_U = MPU6050_Read_Accel_Z();
+
+	static double Gyro_Z_U_hat = 0; //initial estimated state
+
+	K = P * H / (H * P * H + R);
+	Gyro_Z_U_hat = Gyro_Z_U_hat + K * (Gyro_Z_U - H * Gyro_Z_U_hat);
+	P = (1 - K * H) * P + Q;
+
+	return Gyro_Z_U_hat;
+}

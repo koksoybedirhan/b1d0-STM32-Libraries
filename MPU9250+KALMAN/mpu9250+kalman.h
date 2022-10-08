@@ -1,16 +1,40 @@
 /*
- * mpu9250.h
+ * mpu6050.h
  *
- *  Created on: Sep 14, 2022
+ *  Created on: Oct 8, 2022
  *      Author: b1d0
  */
 
-#ifndef INC_MPU9250_H_
-#define INC_MPU9250_H_
+#ifndef INC_MPU6050_H_
+#define INC_MPU6050_H_
 
 #include <stdio.h>
 #include "stm32f4xx_hal.h"
 
-void MPU9250_Test(void);
+void MPU6050_Init (void);
 
-#endif /* INC_MPU9250_H_ */
+float MPU6050_Read_Accel_X (void);
+
+float MPU6050_Read_Accel_Y (void);
+
+float MPU6050_Read_Accel_Z (void);
+
+float MPU6050_Read_Gyro_X (void);
+
+float MPU6050_Read_Gyro_Y (void);
+
+float MPU6050_Read_Gyro_Z (void);
+
+double MPU6050_Kalman_Accel_X (double Accel_X_U);
+
+double MPU6050_Kalman_Accel_Y (double Accel_Y_U);
+
+double MPU6050_Kalman_Accel_Z (double Accel_Z_U);
+
+double MPU6050_Kalman_Gyro_X (double Gyro_X_U);
+
+double MPU6050_Kalman_Gyro_Y (double Gyro_Y_U);
+
+double MPU6050_Kalman_Gyro_Z (double Gyro_Z_U);
+
+#endif /* INC_MPU6050_H_ */

@@ -13,6 +13,8 @@
 
 void MPU6050_Init (void);
 
+float MPU6050_Temperature(void);
+
 float MPU6050_Read_Accel_X (void);
 
 float MPU6050_Read_Accel_Y (void);
@@ -36,5 +38,7 @@ double MPU6050_Kalman_Gyro_X (double Gyro_X_U);
 double MPU6050_Kalman_Gyro_Y (double Gyro_Y_U);
 
 double MPU6050_Kalman_Gyro_Z (double Gyro_Z_U);
+
+float MPU6050_Kalman_Temp(float Temp_U);
 
 #endif /* INC_MPU6050_H_ */

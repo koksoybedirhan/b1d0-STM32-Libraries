@@ -22,6 +22,7 @@ extern I2C_HandleTypeDef hi2c1;
 
 //Variables
 float Ax, Ay, Az, Gx, Gy, Gz, Accel_X, Accel_Y, Accel_Z, Gyro_X, Gyro_Y, Gyro_Z;
+float Temperature;
 int16_t Accel_X_RAW = 0;
 int16_t Accel_Y_RAW = 0;
 int16_t Accel_Z_RAW = 0;
@@ -67,6 +68,12 @@ static double Q6 = 10; //initial estimated covariance
 static double P6 = 0; //initial error covariance (it must be 0)
 static double K6 = 0; //initial kalman gain
 
+static const double R7 = 40; // noise coavirance (normally 10)
+static const double H7 = 1.00; //measurment map scalar
+static double Q7 = 10; //initial estimated covariance
+static double P7 = 0; //initial error covariance (it must be 0)
+static double K7 = 0; //initial kalman gain
+
 void MPU6050_Init (void)
 {
 	uint8_t check;
@@ -99,14 +106,27 @@ void MPU6050_Init (void)
 
 }
 
+float MPU6050_Temperature(void)
+{
+	uint8_t Temp_Data[2];
+	int16_t temp;
+
+	HAL_I2C_Mem_Read (&hi2c1, MPU6050_ADDR, TEMP_OUT_H_REG, 1, Temp_Data, 2, 1000);
+	temp = (Temp_Data[0] << 8 | Temp_Data[1]);
+
+	Temperature = (float)((int16_t)temp / (float)340.0 + (float)36.53);
+
+	return Temperature;
+}
+
 void MPU6050_Accel_Config(void)
 {
-	uint8_t Rec_Data[6];
-	HAL_I2C_Mem_Read (&hi2c1, MPU6050_ADDR, ACCEL_XOUT_H_REG, 1, Rec_Data, 6, 1000);
+	uint8_t Accel_Data[6];
+	HAL_I2C_Mem_Read (&hi2c1, MPU6050_ADDR, ACCEL_XOUT_H_REG, 1, Accel_Data, 6, 1000);
 
-	Accel_X_RAW = (int16_t)(Rec_Data[0] << 8 | Rec_Data [1]);
-	Accel_Y_RAW = (int16_t)(Rec_Data[2] << 8 | Rec_Data [3]);
-	Accel_Z_RAW = (int16_t)(Rec_Data[4] << 8 | Rec_Data [5]);
+	Accel_X_RAW = (int16_t)(Accel_Data[0] << 8 | Accel_Data [1]);
+	Accel_Y_RAW = (int16_t)(Accel_Data[2] << 8 | Accel_Data [3]);
+	Accel_Z_RAW = (int16_t)(Accel_Data[4] << 8 | Accel_Data [5]);
 }
 
 float MPU6050_Read_Accel_X(void)
@@ -132,12 +152,12 @@ float MPU6050_Read_Accel_Z (void)
 
 void MPU6050_Gyro_Config(void)
 {
-	uint8_t Rec_Data[6];
-	HAL_I2C_Mem_Read (&hi2c1, MPU6050_ADDR, GYRO_XOUT_H_REG, 1, Rec_Data, 6, 1000);
+	uint8_t Gyro_Data[6];
+	HAL_I2C_Mem_Read (&hi2c1, MPU6050_ADDR, GYRO_XOUT_H_REG, 1, Gyro_Data, 6, 1000);
 
-	Gyro_X_RAW = (int16_t)(Rec_Data[0] << 8 | Rec_Data [1]);
-	Gyro_Y_RAW = (int16_t)(Rec_Data[2] << 8 | Rec_Data [3]);
-	Gyro_Z_RAW = (int16_t)(Rec_Data[4] << 8 | Rec_Data [5]);
+	Gyro_X_RAW = (int16_t)(Gyro_Data[0] << 8 | Gyro_Data [1]);
+	Gyro_Y_RAW = (int16_t)(Gyro_Data[2] << 8 | Gyro_Data [3]);
+	Gyro_Z_RAW = (int16_t)(Gyro_Data[4] << 8 | Gyro_Data [5]);
 }
 
 float MPU6050_Read_Gyro_X (void)
@@ -237,4 +257,17 @@ double MPU6050_Kalman_Gyro_Z (double Gyro_Z_U)
 	P6 = (1 - K6 * H6) * P6 + Q6;
 
 	return Gyro_Z_U_hat;
+}
+
+float MPU6050_Kalman_Temp(float Temp_U)
+{
+	Temp_U = MPU6050_Temperature();
+
+	static double Temp_U_hat = 0; //initial estimated state
+
+	K7 = P7 * H7 / (H7 * P7 * H7 + R7);
+	Temp_U_hat = Temp_U_hat + K7 * (Temp_U - H6 * Temp_U_hat);
+	P7 = (1 - K7 * H7) * P7 + Q7;
+
+	return Temp_U_hat;
 }

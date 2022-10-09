@@ -30,11 +30,42 @@ int16_t Gyro_Y_RAW = 0;
 int16_t Gyro_Z_RAW = 0;
 
 //Kalman Definitions
-static const double R = 40; // noise coavirance (normally 10)
-static const double H = 1.00; //measurment map scalar
-static double Q = 10; //initial estimated covariance
-static double P = 0; //initial error covariance (it must be 0)
-static double K = 0; //initial kalman gain
+
+static const double R1 = 40; // noise coavirance (normally 10)
+static const double H1 = 1.00; //measurment map scalar
+static double Q1 = 10; //initial estimated covariance
+static double P1 = 0; //initial error covariance (it must be 0)
+static double K1 = 0; //initial kalman gain
+
+static const double R2 = 40; // noise coavirance (normally 10)
+static const double H2 = 1.00; //measurment map scalar
+static double Q2 = 10; //initial estimated covariance
+static double P2 = 0; //initial error covariance (it must be 0)
+static double K2 = 0; //initial kalman gain
+
+static const double R3 = 40; // noise coavirance (normally 10)
+static const double H3 = 1.00; //measurment map scalar
+static double Q3 = 10; //initial estimated covariance
+static double P3 = 0; //initial error covariance (it must be 0)
+static double K3 = 0; //initial kalman gain
+
+static const double R4 = 40; // noise coavirance (normally 10)
+static const double H4 = 1.00; //measurment map scalar
+static double Q4 = 10; //initial estimated covariance
+static double P4 = 0; //initial error covariance (it must be 0)
+static double K4 = 0; //initial kalman gain
+
+static const double R5 = 40; // noise coavirance (normally 10)
+static const double H5 = 1.00; //measurment map scalar
+static double Q5 = 10; //initial estimated covariance
+static double P5 = 0; //initial error covariance (it must be 0)
+static double K5 = 0; //initial kalman gain
+
+static const double R6 = 40; // noise coavirance (normally 10)
+static const double H6 = 1.00; //measurment map scalar
+static double Q6 = 10; //initial estimated covariance
+static double P6 = 0; //initial error covariance (it must be 0)
+static double K6 = 0; //initial kalman gain
 
 void MPU6050_Init (void)
 {
@@ -136,9 +167,9 @@ double MPU6050_Kalman_Accel_X (double Accel_X_U)
 
 	static double Accel_X_U_hat = 0; //initial estimated state
 
-	K = P * H / (H * P * H + R);
-	Accel_X_U_hat = Accel_X_U_hat + K * (Accel_X_U - H * Accel_X_U_hat);
-	P = (1 - K * H) * P + Q;
+	K1 = P1 * H1 / (H1 * P1 * H1 + R1);
+	Accel_X_U_hat = Accel_X_U_hat + K1 * (Accel_X_U - H1 * Accel_X_U_hat);
+	P1 = (1 - K1 * H1) * P1 + Q1;
 
 	return Accel_X_U_hat;
 }
@@ -149,9 +180,9 @@ double MPU6050_Kalman_Accel_Y (double Accel_Y_U)
 
 	static double Accel_Y_U_hat = 0; //initial estimated state
 
-	K = P * H / (H * P * H + R);
-	Accel_Y_U_hat = Accel_Y_U_hat + K * (Accel_Y_U - H * Accel_Y_U_hat);
-	P = (1 - K * H) * P + Q;
+	K2 = P2 * H2 / (H2 * P2 * H2 + R2);
+	Accel_Y_U_hat = Accel_Y_U_hat + K2 * (Accel_Y_U - H2 * Accel_Y_U_hat);
+	P2 = (1 - K2 * H2) * P2 + Q2;
 
 	return Accel_Y_U_hat;
 }
@@ -162,48 +193,48 @@ double MPU6050_Kalman_Accel_Z (double Accel_Z_U)
 
 	static double Accel_Z_U_hat = 0; //initial estimated state
 
-	K = P * H / (H * P * H + R);
-	Accel_Z_U_hat = Accel_Z_U_hat + K * (Accel_Z_U - H * Accel_Z_U_hat);
-	P = (1 - K * H) * P + Q;
+	K3 = P3 * H3 / (H3 * P3 * H3 + R3);
+	Accel_Z_U_hat = Accel_Z_U_hat + K3 * (Accel_Z_U - H3 * Accel_Z_U_hat);
+	P3 = (1 - K3 * H3) * P3 + Q3;
 
 	return Accel_Z_U_hat;
 }
 
 double MPU6050_Kalman_Gyro_X (double Gyro_X_U)
 {
-	Gyro_X_U = MPU6050_Read_Accel_X();
+	Gyro_X_U = MPU6050_Read_Gyro_X();
 
 	static double Gyro_X_U_hat = 0; //initial estimated state
 
-	K = P * H / (H * P * H + R);
-	Gyro_X_U_hat = Gyro_X_U_hat + K * (Gyro_X_U - H * Gyro_X_U_hat);
-	P = (1 - K * H) * P + Q;
+	K4 = P4 * H4 / (H4 * P4 * H4 + R4);
+	Gyro_X_U_hat = Gyro_X_U_hat + K4 * (Gyro_X_U - H4 * Gyro_X_U_hat);
+	P4 = (1 - K4 * H4) * P4 + Q4;
 
 	return Gyro_X_U_hat;
 }
 
 double MPU6050_Kalman_Gyro_Y (double Gyro_Y_U)
 {
-	Gyro_Y_U = MPU6050_Read_Accel_Y();
+	Gyro_Y_U = MPU6050_Read_Gyro_Y();
 
 	static double Gyro_Y_U_hat = 0; //initial estimated state
 
-	K = P * H / (H * P * H + R);
-	Gyro_Y_U_hat = Gyro_Y_U_hat + K * (Gyro_Y_U - H * Gyro_Y_U_hat);
-	P = (1 - K * H) * P + Q;
+	K5 = P5 * H5 / (H5 * P5 * H5 + R5);
+	Gyro_Y_U_hat = Gyro_Y_U_hat + K5 * (Gyro_Y_U - H5 * Gyro_Y_U_hat);
+	P5 = (1 - K5 * H5) * P5 + Q5;
 
 	return Gyro_Y_U_hat;
 }
 
 double MPU6050_Kalman_Gyro_Z (double Gyro_Z_U)
 {
-	Gyro_Z_U = MPU6050_Read_Accel_Z();
+	Gyro_Z_U = MPU6050_Read_Gyro_Z();
 
 	static double Gyro_Z_U_hat = 0; //initial estimated state
 
-	K = P * H / (H * P * H + R);
-	Gyro_Z_U_hat = Gyro_Z_U_hat + K * (Gyro_Z_U - H * Gyro_Z_U_hat);
-	P = (1 - K * H) * P + Q;
+	K6 = P6 * H6 / (H6 * P6 * H6 + R6);
+	Gyro_Z_U_hat = Gyro_Z_U_hat + K6 * (Gyro_Z_U - H6 * Gyro_Z_U_hat);
+	P6 = (1 - K6 * H6) * P6 + Q6;
 
 	return Gyro_Z_U_hat;
 }

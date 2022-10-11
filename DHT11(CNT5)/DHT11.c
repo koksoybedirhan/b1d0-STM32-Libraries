@@ -20,7 +20,7 @@ extern float Humidity;
 extern uint8_t Presence;
 
 /*
- * This part is to important the use micro delay and I add this function in main.c
+ * This part is too important the use micro delay and I add this function in main.c
  * so, you can add this function in your main.c file.
  * void Micro_Delay (uint16_t us) //Us mean MicroSecond
 {

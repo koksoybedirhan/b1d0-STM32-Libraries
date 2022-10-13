@@ -1,5 +1,5 @@
 /*
- * bmp180.c
+ * bme280.h
  *
  *  Created on: Oct 13, 2022
  *      Author: b1d0

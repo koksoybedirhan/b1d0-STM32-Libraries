@@ -1,4 +1,4 @@
-This drivers is for BME280 sensor with I2C protocol.
+This drivers is for BMP180 sensor with I2C protocol.
 Connection:
 VCC -> 3V
 GND -> GND

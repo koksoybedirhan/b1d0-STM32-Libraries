@@ -1,1 +1,0 @@
-This MPU9250 drivers also work in MPU6050 sensor.

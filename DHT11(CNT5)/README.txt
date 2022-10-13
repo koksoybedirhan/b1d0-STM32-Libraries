@@ -1,7 +1,5 @@
-This drivers is for BME280 sensor with I2C protocol.
+This drivers is for DHT11 sensor in CNT5 board with 1-wire protocol.
 Connection:
-VCC -> 3V
+VCC -> 5V
 GND -> GND
-SCL -> PB7
-SDA -> PB6
-SDO -> GND
+DATA -> A1

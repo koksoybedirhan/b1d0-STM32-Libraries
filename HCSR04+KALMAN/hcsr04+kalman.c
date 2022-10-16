@@ -2,7 +2,7 @@
  * hcsr04.c
  *
  *  Created on: Oct 16, 2022
- *      Author: Lenovo
+ *      Author: b1d0
  */
 
 #include "hcsr04.h"

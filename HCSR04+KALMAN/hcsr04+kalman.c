@@ -43,8 +43,8 @@ void Micro_Delay (uint16_t time)
 
 float HCSR04_Distance()
 {
-	HAL_GPIO_WritePin(TRIG_PORT, TRIG_PIN, GPIO_PIN_SET);  // pull the TRIG pin HIGH
-	Micro_Delay(10);
+    HAL_GPIO_WritePin(TRIG_PORT, TRIG_PIN, GPIO_PIN_SET);  // pull the TRIG pin HIGH
+    Micro_Delay(10);
     HAL_GPIO_WritePin(TRIG_PORT, TRIG_PIN, GPIO_PIN_RESET);  // pull the TRIG pin low
 
     pMillis = HAL_GetTick(); // used this to avoid infinite while loop  (for timeout)

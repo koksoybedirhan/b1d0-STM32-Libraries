@@ -15,13 +15,13 @@ extern TIM_HandleTypeDef htim1;
  * Add this after USER CODE BEGIN 2. It's near to while(1).
  */
 
-//defines
+//Defines
 #define TRIG_PIN GPIO_PIN_2
 #define TRIG_PORT GPIOD
 #define ECHO_PIN GPIO_PIN_1
 #define ECHO_PORT GPIOD
 
-//Variable
+//Variables
 uint32_t pMillis;
 uint32_t Value1 = 0;
 uint32_t Value2 = 0;

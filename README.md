@@ -15,3 +15,4 @@ https://github.com/ctasdemir
 https://www.udemy.com/course/stm32cubeide-ile-gomulu-yazlim-tasarim/#instructor-1
 https://www.vinayakd.com
 https://www.micropeta.com
+https://majerle.eu

@@ -1,7 +1,6 @@
-This drivers is for BME280 sensor with I2C protocol.
+This drivers is for GPS-NEO6M/NEO8M sensor with USART protocol.
 Connection:
 VCC -> 3V
 GND -> GND
-SCL -> PB7
-SDA -> PB6
-SDO -> GND
+RX -> PB6
+TX -> PB7

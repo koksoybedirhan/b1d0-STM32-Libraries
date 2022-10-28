@@ -64,3 +64,4 @@ void SD_Write(void)
 	f_close(&file);
 }
 
+//Firstly Use SD_Init() in main.c, after you can use whatever you want.

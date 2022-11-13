@@ -7,7 +7,7 @@
 
 #include "mpu6050.h"
 
-extern I2C_HandleTypeDef hi2c1;
+extern I2C_HandleTypeDef hi2c2;
 
 //Register Definitions
 #define MPU6050_ADDR 0xD0
@@ -22,7 +22,7 @@ extern I2C_HandleTypeDef hi2c1;
 
 //Variables
 float Ax, Ay, Az, Gx, Gy, Gz, Accel_X, Accel_Y, Accel_Z, Gyro_X, Gyro_Y, Gyro_Z;
-float Temperature;
+float Temperature1;
 int16_t Accel_X_RAW = 0;
 int16_t Accel_Y_RAW = 0;
 int16_t Accel_Z_RAW = 0;
@@ -81,27 +81,27 @@ void MPU6050_Init (void)
 
 	// check device ID WHO_AM_I
 
-	HAL_I2C_Mem_Read (&hi2c1, MPU6050_ADDR,WHO_AM_I_REG,1, &check, 1, 1000);
+	HAL_I2C_Mem_Read (&hi2c2, MPU6050_ADDR,WHO_AM_I_REG,1, &check, 1, 1000);
 
 	if (check == 104)  // 0x68 will be returned by the sensor if everything goes well
 	{
 		// power management register 0X6B we should write all 0's to wake the sensor up
 		Data = 0;
-		HAL_I2C_Mem_Write(&hi2c1, MPU6050_ADDR, PWR_MGMT_1_REG, 1,&Data, 1, 1000);
+		HAL_I2C_Mem_Write(&hi2c2, MPU6050_ADDR, PWR_MGMT_1_REG, 1,&Data, 1, 1000);
 
 		// Set DATA RATE of 1KHz by writing SMPLRT_DIV register
 		Data = 0x07;
-		HAL_I2C_Mem_Write(&hi2c1, MPU6050_ADDR, SMPLRT_DIV_REG, 1, &Data, 1, 1000);
+		HAL_I2C_Mem_Write(&hi2c2, MPU6050_ADDR, SMPLRT_DIV_REG, 1, &Data, 1, 1000);
 
 		// Set accelerometer configuration in ACCEL_CONFIG Register
-		// XA_ST=0,YA_ST=0,ZA_ST=0, FS_SEL=0 -> ± 2g
+		// XA_ST=0,YA_ST=0,ZA_ST=0, FS_SEL=0 -> Â± 2g
 		Data = 0x00;
-		HAL_I2C_Mem_Write(&hi2c1, MPU6050_ADDR, ACCEL_CONFIG_REG, 1, &Data, 1, 1000);
+		HAL_I2C_Mem_Write(&hi2c2, MPU6050_ADDR, ACCEL_CONFIG_REG, 1, &Data, 1, 1000);
 
 		// Set Gyroscopic configuration in GYRO_CONFIG Register
-		// XG_ST=0,YG_ST=0,ZG_ST=0, FS_SEL=0 -> ± 250 °/s
+		// XG_ST=0,YG_ST=0,ZG_ST=0, FS_SEL=0 -> Â± 250 Â°/s
 		Data = 0x00;
-		HAL_I2C_Mem_Write(&hi2c1, MPU6050_ADDR, GYRO_CONFIG_REG, 1, &Data, 1, 1000);
+		HAL_I2C_Mem_Write(&hi2c2, MPU6050_ADDR, GYRO_CONFIG_REG, 1, &Data, 1, 1000);
 	}
 
 }
@@ -111,18 +111,18 @@ float MPU6050_Temperature(void)
 	uint8_t Temp_Data[2];
 	int16_t temp;
 
-	HAL_I2C_Mem_Read (&hi2c1, MPU6050_ADDR, TEMP_OUT_H_REG, 1, Temp_Data, 2, 1000);
+	HAL_I2C_Mem_Read (&hi2c2, MPU6050_ADDR, TEMP_OUT_H_REG, 1, Temp_Data, 2, 1000);
 	temp = (Temp_Data[0] << 8 | Temp_Data[1]);
 
-	Temperature = (float)((int16_t)temp / (float)340.0 + (float)36.53);
+	Temperature1 = (float)((int16_t)temp / (float)340.0 + (float)36.53);
 
-	return Temperature;
+	return Temperature1;
 }
 
 void MPU6050_Accel_Config(void)
 {
 	uint8_t Accel_Data[6];
-	HAL_I2C_Mem_Read (&hi2c1, MPU6050_ADDR, ACCEL_XOUT_H_REG, 1, Accel_Data, 6, 1000);
+	HAL_I2C_Mem_Read (&hi2c2, MPU6050_ADDR, ACCEL_XOUT_H_REG, 1, Accel_Data, 6, 1000);
 
 	Accel_X_RAW = (int16_t)(Accel_Data[0] << 8 | Accel_Data [1]);
 	Accel_Y_RAW = (int16_t)(Accel_Data[2] << 8 | Accel_Data [3]);
@@ -153,7 +153,7 @@ float MPU6050_Read_Accel_Z (void)
 void MPU6050_Gyro_Config(void)
 {
 	uint8_t Gyro_Data[6];
-	HAL_I2C_Mem_Read (&hi2c1, MPU6050_ADDR, GYRO_XOUT_H_REG, 1, Gyro_Data, 6, 1000);
+	HAL_I2C_Mem_Read (&hi2c2, MPU6050_ADDR, GYRO_XOUT_H_REG, 1, Gyro_Data, 6, 1000);
 
 	Gyro_X_RAW = (int16_t)(Gyro_Data[0] << 8 | Gyro_Data [1]);
 	Gyro_Y_RAW = (int16_t)(Gyro_Data[2] << 8 | Gyro_Data [3]);

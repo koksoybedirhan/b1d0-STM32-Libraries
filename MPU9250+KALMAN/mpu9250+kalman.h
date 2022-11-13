@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include "stm32f4xx_hal.h"
+#include <math.h>
 
 void MPU6050_Init (void);
 
@@ -27,18 +28,22 @@ float MPU6050_Read_Gyro_Y (void);
 
 float MPU6050_Read_Gyro_Z (void);
 
-double MPU6050_Kalman_Accel_X (double Accel_X_U);
+float MPU6050_Roll_Angle (void);
 
-double MPU6050_Kalman_Accel_Y (double Accel_Y_U);
+float MPU6050_Kalman_Roll_Angle (void);
 
-double MPU6050_Kalman_Accel_Z (double Accel_Z_U);
+double MPU6050_Kalman_Accel_X (void);
 
-double MPU6050_Kalman_Gyro_X (double Gyro_X_U);
+double MPU6050_Kalman_Accel_Y (void);
 
-double MPU6050_Kalman_Gyro_Y (double Gyro_Y_U);
+double MPU6050_Kalman_Accel_Z (void);
 
-double MPU6050_Kalman_Gyro_Z (double Gyro_Z_U);
+double MPU6050_Kalman_Gyro_X (void);
 
-float MPU6050_Kalman_Temp(float Temp_U);
+double MPU6050_Kalman_Gyro_Y (void);
+
+double MPU6050_Kalman_Gyro_Z (void);
+
+float MPU6050_Kalman_Temp(void);
 
 #endif /* INC_MPU6050_H_ */

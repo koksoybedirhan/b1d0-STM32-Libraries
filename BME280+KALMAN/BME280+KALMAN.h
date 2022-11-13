@@ -1,5 +1,5 @@
 /*
- * bme280.h
+ * bmp180.c
  *
  *  Created on: Oct 13, 2022
  *      Author: b1d0
@@ -9,6 +9,7 @@
 #define INC_BME180_H_
 
 #include "stm32f4xx_hal.h"
+#include <math.h>
 
 // Oversampling definitions
 #define OSRS_OFF    	0x00
@@ -64,6 +65,10 @@ double BME280_Pressure (void);
 double BME280_Humidity (void);
 
 double BME280_Temperature (void);
+
+float BME280_Altitude (void);
+
+float BME280_Kalman_Alt(double U0);
 
 double BME280_Kalman_Press(double U1);
 

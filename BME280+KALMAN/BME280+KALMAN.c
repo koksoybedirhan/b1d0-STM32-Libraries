@@ -271,7 +271,7 @@ float BME280_Altitude(void)
 {
 	PressValue = BME280_Pressure();
 	PressValue = PressValue/100;
-	Altitude = 44330*(1.0-pow(PressValue/SeaLevel, 0.1903));
+	Altitude = 44330*(1.0-pow(PressValue/SeaLevel, 0.19029495718));
 	return Altitude;
 }
 

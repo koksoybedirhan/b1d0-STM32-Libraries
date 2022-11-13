@@ -1,5 +1,5 @@
 /*
- * bme280.c
+ * bmp180.c
  *
  *  Created on: Oct 13, 2022
  *      Author: b1d0
@@ -19,6 +19,8 @@ uint8_t chipID, TrimParam[36], trimdata[32];
 uint16_t dig_T1, dig_P1, dig_H1, dig_H3;
 int16_t  dig_T2, dig_T3, dig_P2, dig_P3, dig_P4, dig_P5, dig_P6, dig_P7, dig_P8, dig_P9, dig_H2,  dig_H4, dig_H5, dig_H6;
 int32_t tRaw, pRaw, hRaw;
+float Altitude, PressValue;
+float SeaLevel = 1013.25;
 
 //Read the Trimming parameters saved in the NVM ROM of the device
 //This function came from datasheet page 24
@@ -263,6 +265,30 @@ double BME280_Temperature(void)
 		Temperature = 0;
 	}
 	return Temperature;
+}
+
+float BME280_Altitude(void)
+{
+	PressValue = BME280_Pressure();
+	PressValue = PressValue/100;
+	Altitude = 44330*(1.0-pow(PressValue/SeaLevel, 0.1903));
+	return Altitude;
+}
+
+float BME280_Kalman_Alt(double U0)
+{
+	static const double R0 = 40; // noise coavirance (normally 10)
+	static const double H0 = 1.00; //measurment map scalar
+	static double Q0 = 10; //initial estimated covariance
+	static double P0 = 0; //initial error covariance (it must be 0)
+	static double U0_hat = 0; //initial estimated state
+	static double K0 = 0; //initial kalman gain
+
+	U0 = BME280_Altitude();
+	K0 = P0 * H0 / (H0 * P0 * H0 + R0);
+	U0_hat = U0_hat + K0 * (U0 - H0 * U0_hat);
+	P0 = (1 - K0 * H0) * P0 + Q0;
+	return U0_hat;
 }
 
 double BME280_Kalman_Press(double U1)

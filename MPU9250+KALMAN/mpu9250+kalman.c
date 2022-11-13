@@ -19,6 +19,7 @@ extern I2C_HandleTypeDef hi2c2;
 #define GYRO_XOUT_H_REG 0x43
 #define PWR_MGMT_1_REG 0x6B
 #define WHO_AM_I_REG 0x75
+#define AXIS_START 0x03
 
 //Variables
 float Ax, Ay, Az, Gx, Gy, Gz, Accel_X, Accel_Y, Accel_Z, Gyro_X, Gyro_Y, Gyro_Z;
@@ -31,6 +32,12 @@ int16_t Gyro_Y_RAW = 0;
 int16_t Gyro_Z_RAW = 0;
 
 //Kalman Definitions
+
+static const double R0 = 40; // noise coavirance (normally 10)
+static const double H0 = 1.00; //measurment map scalar
+static double Q0 = 10; //initial estimated covariance
+static double P0 = 0; //initial error covariance (it must be 0)
+static double K0 = 0; //initial kalman gain
 
 static const double R1 = 40; // noise coavirance (normally 10)
 static const double H1 = 1.00; //measurment map scalar
@@ -181,9 +188,31 @@ float MPU6050_Read_Gyro_Z (void)
 	return Gz;
 }
 
-double MPU6050_Kalman_Accel_X (double Accel_X_U)
+float MPU6050_Roll_Angle(void)
 {
-	Accel_X_U = MPU6050_Read_Accel_X();
+	double AccelY = MPU6050_Kalman_Accel_Y();
+	double AccelZ = MPU6050_Kalman_Accel_Z();
+	float Roll = 0;
+	Roll = atan2(AccelY, AccelZ) * 180;
+	return Roll;
+}
+
+float MPU6050_Kalman_Roll_Angle (void)
+{
+	float RollAng_U = MPU6050_Roll_Angle();
+
+	static double RollAng_U_hat = 0; //initial estimated state
+
+	K0 = P0 * H0 / (H0 * P0 * H0 + R0);
+	RollAng_U_hat = RollAng_U_hat + K0 * (RollAng_U - H0 * RollAng_U_hat);
+	P0 = (1 - K0 * H0) * P0 + Q0;
+
+	return RollAng_U_hat;
+}
+
+double MPU6050_Kalman_Accel_X (void)
+{
+	double Accel_X_U = MPU6050_Read_Accel_X();
 
 	static double Accel_X_U_hat = 0; //initial estimated state
 
@@ -194,9 +223,9 @@ double MPU6050_Kalman_Accel_X (double Accel_X_U)
 	return Accel_X_U_hat;
 }
 
-double MPU6050_Kalman_Accel_Y (double Accel_Y_U)
+double MPU6050_Kalman_Accel_Y (void)
 {
-	Accel_Y_U = MPU6050_Read_Accel_Y();
+	double Accel_Y_U = MPU6050_Read_Accel_Y();
 
 	static double Accel_Y_U_hat = 0; //initial estimated state
 
@@ -207,9 +236,9 @@ double MPU6050_Kalman_Accel_Y (double Accel_Y_U)
 	return Accel_Y_U_hat;
 }
 
-double MPU6050_Kalman_Accel_Z (double Accel_Z_U)
+double MPU6050_Kalman_Accel_Z (void)
 {
-	Accel_Z_U = MPU6050_Read_Accel_Z();
+	double Accel_Z_U = MPU6050_Read_Accel_Z();
 
 	static double Accel_Z_U_hat = 0; //initial estimated state
 
@@ -220,9 +249,9 @@ double MPU6050_Kalman_Accel_Z (double Accel_Z_U)
 	return Accel_Z_U_hat;
 }
 
-double MPU6050_Kalman_Gyro_X (double Gyro_X_U)
+double MPU6050_Kalman_Gyro_X (void)
 {
-	Gyro_X_U = MPU6050_Read_Gyro_X();
+	double Gyro_X_U = MPU6050_Read_Gyro_X();
 
 	static double Gyro_X_U_hat = 0; //initial estimated state
 
@@ -233,9 +262,9 @@ double MPU6050_Kalman_Gyro_X (double Gyro_X_U)
 	return Gyro_X_U_hat;
 }
 
-double MPU6050_Kalman_Gyro_Y (double Gyro_Y_U)
+double MPU6050_Kalman_Gyro_Y (void)
 {
-	Gyro_Y_U = MPU6050_Read_Gyro_Y();
+	double Gyro_Y_U = MPU6050_Read_Gyro_Y();
 
 	static double Gyro_Y_U_hat = 0; //initial estimated state
 
@@ -246,9 +275,9 @@ double MPU6050_Kalman_Gyro_Y (double Gyro_Y_U)
 	return Gyro_Y_U_hat;
 }
 
-double MPU6050_Kalman_Gyro_Z (double Gyro_Z_U)
+double MPU6050_Kalman_Gyro_Z (void)
 {
-	Gyro_Z_U = MPU6050_Read_Gyro_Z();
+	double Gyro_Z_U = MPU6050_Read_Gyro_Z();
 
 	static double Gyro_Z_U_hat = 0; //initial estimated state
 
@@ -259,9 +288,9 @@ double MPU6050_Kalman_Gyro_Z (double Gyro_Z_U)
 	return Gyro_Z_U_hat;
 }
 
-float MPU6050_Kalman_Temp(float Temp_U)
+float MPU6050_Kalman_Temp(void)
 {
-	Temp_U = MPU6050_Temperature();
+	float Temp_U = MPU6050_Temperature();
 
 	static double Temp_U_hat = 0; //initial estimated state
 
